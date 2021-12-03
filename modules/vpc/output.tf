@@ -7,11 +7,11 @@ output "id" {
 }
 
 output "cidr_block" {
-  value = resource.aws_vpc.vpc.cidr_block
+  value = aws_vpc.vpc.cidr_block
 }
 
 output "instance_tenancy" {
-  value = resource.aws_vpc.vpc.instance_tenancy
+  value = aws_vpc.vpc.instance_tenancy
 }
 
 output "enable_dns_support" {
@@ -37,17 +37,17 @@ output "tags" {
 ############## IGW ##############
 
 output "igw_id" {
-  value = var.create_igw ? module.igw : null
+  value = var.create_igw ? module.igw[0].id : null
 }
 
-# output "igw_arn" {
-#   value = var.create_igw ? module.igw.arn : null
-# }
+output "igw_arn" {
+  value = var.create_igw ? module.igw[0].arn : null
+}
 
-# output "igw_owner_id" {
-#   value = var.create_igw ? module.igw.owner_id : null
-# }
+output "igw_owner_id" {
+  value = var.create_igw ? module.igw[0].owner_id : null
+}
 
-# output "igw_tags" {
-#   value = var.create_igw ? module.igw.tags_all : null
-# }
+output "igw_tags" {
+  value = var.create_igw ? module.igw[0].tags : null
+}
