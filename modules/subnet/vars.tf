@@ -16,7 +16,7 @@ variable "availability_zone" {
 variable "map_customer_owned_ip_on_launch" {
   type        = bool
   description = "if customer owner ip is to be used or not"
-  default     = false
+  default     = null
 }
 
 variable "customer_owned_ipv4_pool" {
@@ -44,7 +44,12 @@ variable "name" {
 }
 
 variable "tags" {
-  type        = map(string)
+  type        = map(any)
   description = "tags"
   default     = {}
+}
+
+variable "assign_ipv6_address_on_creation" {
+  type    = bool
+  default = false
 }

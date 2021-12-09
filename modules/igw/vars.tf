@@ -4,7 +4,7 @@ variable "vpc_id" {
 }
 
 variable "tags" {
-  type        = map(string)
+  type        = map(any)
   description = "Tags for IGW"
   default     = {}
 }
