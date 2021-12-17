@@ -77,15 +77,15 @@ output "public_subnet_cidr" {
 #### PUBLIC SUBNET ROUTE TABLE ####
 
 output "public_route_table_ids" {
-    value = length(var.public_subnet) > 0 ? module.public_route_table[*].id : null
+  value = length(var.public_subnet) > 0 ? module.public_route_table[*].id : null
 }
 
 output "public_route_table_arns" {
-    value = length(var.public_subnet) > 0 ? module.public_route_table[*].arn : null
+  value = length(var.public_subnet) > 0 ? module.public_route_table[*].arn : null
 }
 
 output "public_route_table_tags" {
-    value = length(var.public_subnet) > 0 ? module.public_route_table[*].tags : null
+  value = length(var.public_subnet) > 0 ? module.public_route_table[*].tags : null
 }
 
 ########## PRIVATE SUBNET #########
@@ -113,16 +113,17 @@ output "private_subnet_cidr" {
 #### PRIVATE SUBNET ROUTE TABLE ###
 
 output "private_route_table_ids" {
-    value = length(var.private_subnet) > 0 ? module.private_route_table[*].id : null
+  value = length(var.private_subnet) > 0 ? module.private_route_table[*].id : null
 }
 
 output "private_route_table_arns" {
-    value = length(var.private_subnet) > 0 ? module.private_route_table[*].arn : null
+  value = length(var.private_subnet) > 0 ? module.private_route_table[*].arn : null
 }
 
 output "private_route_table_tags" {
-    value = length(var.private_subnet) > 0 ? module.private_route_table[*].tags : null
+  value = length(var.private_subnet) > 0 ? module.private_route_table[*].tags : null
 }
+
 
 ######### PROTECTED SUBNET ########
 
@@ -149,13 +150,13 @@ output "protected_subnet_cidr" {
 ### PROTECTED SUBNET ROUTE TABLE ##
 
 output "protected_route_table_ids" {
-    value = length(var.protected_subnet) > 0 ? module.protected_route_table[*].id : null
+  value = length(var.protected_subnet) > 0 ? module.protected_route_table[*].id : null
 }
 
 output "protected_route_table_arns" {
-    value = length(var.protected_subnet) > 0 ? module.protected_route_table[*].arn : null
+  value = length(var.protected_subnet) > 0 ? module.protected_route_table[*].arn : null
 }
 
 output "protected_route_table_tags" {
-    value = length(var.protected_subnet) > 0 ? module.protected_route_table[*].tags : null
+  value = length(var.protected_subnet) > 0 ? module.protected_route_table[*].tags : null
 }

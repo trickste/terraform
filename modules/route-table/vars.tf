@@ -15,3 +15,9 @@ variable "tags" {
     description = "A map of tags to assign to the route table"
     default = {}
 }
+
+variable "subnet_id" {
+    type = string
+    description = "subnet id to associate the route table to"
+    default = ""
+}

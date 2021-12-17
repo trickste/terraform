@@ -139,9 +139,9 @@ variable "private_subnet_tags" {
 ############ PROTECTED SUBNET ############
 
 variable "protected_subnet" {
-  type = any
+  type        = any
   description = "Map of Subnet configurations"
-  default = []
+  default     = []
 }
 
 variable "protected_subnet_name" {
