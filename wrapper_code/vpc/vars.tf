@@ -25,6 +25,12 @@ variable "public_subnet" {
       availability_zone               = "ap-south-1b"
       name                            = "PUBLIC-SUBNET"
       assign_ipv6_address_on_creation = false
+      tags  = {
+        region = "ap-south-1"
+      }
+      route_table_tags = {
+        rt-specific = "yup"
+      }
     }
   ]
 }

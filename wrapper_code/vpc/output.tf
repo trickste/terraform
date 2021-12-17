@@ -70,6 +70,20 @@ output "public_subnet_cidr" {
   value = length(var.public_subnet) > 0 ? module.vpc.public_subnet_cidr : null
 }
 
+#### PUBLIC SUBNET ROUTE TABLE ####
+
+output "public_route_table_ids" {
+    value = length(var.public_subnet) > 0 ? module.vpc.public_route_table_ids : null
+}
+
+output "public_route_table_arns" {
+    value = length(var.public_subnet) > 0 ? module.vpc.public_route_table_arns : null
+}
+
+output "public_route_table_tags" {
+    value = length(var.public_subnet) > 0 ? module.vpc.public_route_table_tags : null
+}
+
 ######### PRIVATE SUBNET #########
 
 output "private_subnet_ids" {
@@ -88,7 +102,21 @@ output "private_subnet_cidr" {
   value = length(var.private_subnet) > 0 ? module.vpc.private_subnet_cidr : null
 }
 
-######### PROTECTED SUBNET #########
+#### PRIVATE SUBNET ROUTE TABLE ###
+
+output "private_route_table_ids" {
+    value = length(var.private_subnet) > 0 ? module.vpc.private_route_table_ids : null
+}
+
+output "private_route_table_arns" {
+    value = length(var.private_subnet) > 0 ? module.vpc.private_route_table_arns : null
+}
+
+output "private_route_table_tags" {
+    value = length(var.private_subnet) > 0 ? module.vpc.private_route_table_tags : null
+}
+
+######### PROTECTED SUBNET ########
 
 output "protected_subnet_ids" {
   value = length(var.protected_subnet) > 0 ? module.vpc.protected_subnet_ids : null
@@ -104,4 +132,18 @@ output "protected_subnet_tags" {
 
 output "protected_subnet_cidr" {
   value = length(var.protected_subnet) > 0 ? module.vpc.protected_subnet_cidr : null
+}
+
+### PROTECTED SUBNET ROUTE TABLE ##
+
+output "protected_route_table_ids" {
+    value = length(var.protected_subnet) > 0 ? module.vpc.protected_route_table_ids : null
+}
+
+output "protected_route_table_arns" {
+    value = length(var.protected_subnet) > 0 ? module.vpc.protected_route_table_arns : null
+}
+
+output "protected_route_table_tags" {
+    value = length(var.protected_subnet) > 0 ? module.vpc.protected_route_table_tags : null
 }

@@ -25,6 +25,7 @@ module "igw" {
   tags   = var.igw_tags != null ? var.igw_tags : var.tags
 }
 
+
 ######### PUBLIC SUBNET #########
 
 module "public_subnet" {
@@ -41,6 +42,17 @@ module "public_subnet" {
   ipv6_cidr_block                 = lookup(var.public_subnet[count.index], "ipv6_cidr_block", null)
   tags                            = lookup(var.public_subnet[count.index], "tags", null) != null ? lookup(var.public_subnet[count.index], "tags") : (var.public_subnet_tags != null ? var.public_subnet_tags : var.tags)
 }
+
+###### PUBLIC ROUTE TABLES #####
+
+module "public_route_table" {
+  count            = length(var.public_subnet)
+  source           = "../route-table"
+  vpc_id           = var.create_vpc ? aws_vpc.vpc[0].id : var.vpc_id
+  name             = lookup(var.public_subnet[count.index], "name", null) != null ? format("%s-%s-%s-rt", var.name, lookup(var.public_subnet[count.index], "name", null), reverse(split("", lookup(var.public_subnet[count.index], "availability_zone", null)))[0]) : format("%s-%s-%s-rt", var.name, var.public_subnet_name, reverse(split("", lookup(var.public_subnet[count.index], "availability_zone", null)))[0])
+  tags             = lookup(var.public_subnet[count.index], "route_table_tags", null) != null ? lookup(var.public_subnet[count.index], "route_table_tags", null) : ( lookup(var.public_subnet[count.index], "tags", null) != null ? lookup(var.public_subnet[count.index], "tags") : ( var.public_subnet_tags != null ? var.public_subnet_tags : var.tags))
+}
+
 
 ######### PRIVATE SUBNET ########
 
@@ -59,7 +71,17 @@ module "private_subnet" {
   tags                            = lookup(var.private_subnet[count.index], "tags", null) != null ? lookup(var.private_subnet[count.index], "tags") : (var.private_subnet_tags != null ? var.private_subnet_tags : var.tags)
 }
 
-######### PROTECTED SUBNET ########
+###### PRIVATE ROUTE TABLES #####
+
+module "private_route_table" {
+  count            = length(var.private_subnet)
+  source           = "../route-table"
+  vpc_id           = var.create_vpc ? aws_vpc.vpc[0].id : var.vpc_id
+  name             = lookup(var.private_subnet[count.index], "name", null) != null ? format("%s-%s-%s-rt", var.name, lookup(var.private_subnet[count.index], "name", null), reverse(split("", lookup(var.private_subnet[count.index], "availability_zone", null)))[0]) : format("%s-%s-%s-rt", var.name, var.private_subnet_name, reverse(split("", lookup(var.private_subnet[count.index], "availability_zone", null)))[0])
+  tags             = lookup(var.private_subnet[count.index], "route_table_tags", null) != null ? lookup(var.private_subnet[count.index], "route_table_tags", null) : ( lookup(var.private_subnet[count.index], "tags", null) != null ? lookup(var.private_subnet[count.index], "tags") : ( var.private_subnet_tags != null ? var.private_subnet_tags : var.tags))
+}
+
+######## PROTECTED SUBNET ########
 
 module "protected_subnet" {
   count                           = length(var.protected_subnet)
@@ -74,4 +96,14 @@ module "protected_subnet" {
   outpost_arn                     = lookup(var.protected_subnet[count.index], "outpost_arn", null)
   ipv6_cidr_block                 = lookup(var.protected_subnet[count.index], "ipv6_cidr_block", null)
   tags                            = lookup(var.protected_subnet[count.index], "tags", null) != null ? lookup(var.protected_subnet[count.index], "tags") : (var.protected_subnet_tags != null ? var.protected_subnet_tags : var.tags)
+}
+
+##### PROTECTED ROUTE TABLES ####
+
+module "protected_route_table" {
+  count            = length(var.protected_subnet)
+  source           = "../route-table"
+  vpc_id           = var.create_vpc ? aws_vpc.vpc[0].id : var.vpc_id
+  name             = lookup(var.protected_subnet[count.index], "name", null) != null ? format("%s-%s-%s-rt", var.name, lookup(var.protected_subnet[count.index], "name", null), reverse(split("", lookup(var.protected_subnet[count.index], "availability_zone", null)))[0]) : format("%s-%s-%s-rt", var.name, var.protected_subnet_name, reverse(split("", lookup(var.protected_subnet[count.index], "availability_zone", null)))[0])
+  tags             = lookup(var.protected_subnet[count.index], "route_table_tags", null) != null ? lookup(var.protected_subnet[count.index], "route_table_tags", null) : ( lookup(var.protected_subnet[count.index], "tags", null) != null ? lookup(var.protected_subnet[count.index], "tags") : ( var.protected_subnet_tags != null ? var.protected_subnet_tags : var.tags))
 }

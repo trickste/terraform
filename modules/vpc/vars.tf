@@ -81,7 +81,7 @@ variable "igw_tags" {
 ############## Public Subnet ##############
 
 variable "public_subnet" {
-  type        = list(any)
+  type        = any
   description = "Map of Subnet configurations"
   default     = []
 }
@@ -113,7 +113,7 @@ variable "public_subnet_tags" {
 ############## PRIVATE SUBNET #############
 
 variable "private_subnet" {
-  type        = list(any)
+  type        = any
   description = "Map of Subnet configurations"
   default     = []
 }
@@ -139,9 +139,9 @@ variable "private_subnet_tags" {
 ############ PROTECTED SUBNET ############
 
 variable "protected_subnet" {
-  type        = list(any)
+  type = any
   description = "Map of Subnet configurations"
-  default     = []
+  default = []
 }
 
 variable "protected_subnet_name" {
