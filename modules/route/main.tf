@@ -14,6 +14,7 @@ resource "aws_route" "nat_gateway_route" {
   nat_gateway_id              = var.nat_gateway_id
 }
 
+
 resource "aws_route" "vpc_endpoint_route" {
   count                       = var.create_vpc_endpoint_route ? 1 : 0
   route_table_id              = var.route_table_id

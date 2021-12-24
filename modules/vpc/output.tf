@@ -1,3 +1,5 @@
+############### VPC ###############
+
 output "arn" {
   value = aws_vpc.vpc[0].arn
 }
@@ -34,7 +36,7 @@ output "tags" {
   value = aws_vpc.vpc[0].tags_all
 }
 
-############## IGW ##############
+############### IGW ###############
 
 output "igw_id" {
   value = var.create_igw ? module.igw[0].id : null
@@ -124,6 +126,23 @@ output "private_route_table_tags" {
   value = length(var.private_subnet) > 0 ? module.private_route_table[*].tags : null
 }
 
+############### IGW ###############
+
+output "nat_id" {
+  value = length(var.private_subnet) > 0 ? module.nat[*].id : null
+}
+
+output "nat_allocation_id" {
+  value = length(var.private_subnet) > 0 ? module.nat[*].allocation_id : null
+}
+
+output "nat_subnet_id" {
+  value = length(var.private_subnet) > 0 ? module.nat[*].subnet_id : null
+}
+
+output "nat_tags" {
+  value = length(var.private_subnet) > 0 ? module.nat[*].tags : null
+}
 
 ######### PROTECTED SUBNET ########
 

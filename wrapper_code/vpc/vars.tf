@@ -19,11 +19,13 @@ variable "public_subnet" {
     {
       cidr_block        = "10.0.0.0/24"
       availability_zone = "ap-south-1a"
+      create_nat        = true
     },
     {
       cidr_block                      = "10.0.1.0/24"
       availability_zone               = "ap-south-1b"
       name                            = "PUBLIC-SUBNET"
+      create_nat                      = true
       assign_ipv6_address_on_creation = false
       tags  = {
         region = "ap-south-1"
@@ -67,6 +69,7 @@ variable "protected_subnet" {
       availability_zone               = "ap-south-1b"
       name                            = "PROTECTED-SUBNET"
       assign_ipv6_address_on_creation = false
+      create_nat_gateway_route        = true
     }
   ]
 }

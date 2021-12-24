@@ -72,6 +72,12 @@ variable "create_igw" {
   default     = true
 }
 
+variable "igw_id" {
+  type        = string
+  description = "Provide your own IGW id if already created"
+  default     = null
+}
+
 variable "igw_tags" {
   type        = map(any)
   description = "Map for Tags for IGW"
@@ -134,6 +140,12 @@ variable "private_subnet_tags" {
   type        = map(any)
   description = "Default Map for Tags for private Subnets"
   default     = null
+}
+
+variable "nat_ids" {
+  type        = list(string)
+  description = "Provide list of your own NAT ids if already created"
+  default     = []
 }
 
 ############ PROTECTED SUBNET ############

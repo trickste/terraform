@@ -39,7 +39,7 @@ variable "create_nat_gateway_route" {
 variable "nat_gateway_id" {
   type        = string
   description = "Identifier of a VPC NAT gateway"
-  default     = null
+  default     = ""
 }
 
 
