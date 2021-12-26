@@ -84,7 +84,15 @@ variable "igw_tags" {
   default     = null
 }
 
-############## Public Subnet ##############
+############### DEFAULT NACL ##############
+
+variable "default_nacl" {
+  type = any
+  description = "Configuration for default nacl config"
+  default = {}
+}
+
+############## PUBLIC SUBNET ##############
 
 variable "public_subnet" {
   type        = any
@@ -116,6 +124,11 @@ variable "public_subnet_tags" {
   default     = null
 }
 
+variable "default_public_subnet_nacl" {
+  type        = any
+  description = "Ingress and Egress rules for Default Public subnet NACL"
+  default     = null
+}
 ############## PRIVATE SUBNET #############
 
 variable "private_subnet" {
@@ -148,6 +161,12 @@ variable "nat_ids" {
   default     = []
 }
 
+variable "default_private_subnet_nacl" {
+  type        = any
+  description = "Ingress and Egress rules for Default Private subnet NACL"
+  default     = null
+}
+
 ############ PROTECTED SUBNET ############
 
 variable "protected_subnet" {
@@ -171,5 +190,11 @@ variable "protected_subnet_assign_ipv6_address_on_creation" {
 variable "protected_subnet_tags" {
   type        = map(any)
   description = "Default Map for Tags for protected Subnets"
+  default     = null
+}
+
+variable "default_protected_subnet_nacl" {
+  type        = any
+  description = "Ingress and Egress rules for Default Protected subnet NACL"
   default     = null
 }

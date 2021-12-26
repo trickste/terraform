@@ -27,7 +27,33 @@ variable "public_subnet" {
       name                            = "PUBLIC-SUBNET"
       create_nat                      = true
       assign_ipv6_address_on_creation = false
-      tags  = {
+      nacl_ingress = [
+        {
+          rule_number     = 200
+          egress          = false
+          protocol        = "tcp"
+          rule_action     = "allow"
+          cidr_block      = "0.0.0.0/0"
+          from_port       = 22
+          to_port         = 22
+          icmp_code       = -1
+          icmp_type       = -1
+        }
+      ]
+      nacl_egress = [
+        {
+          rule_number     = 200
+          egress          = false
+          protocol        = "tcp"
+          rule_action     = "allow"
+          cidr_block      = "0.0.0.0/0"
+          from_port       = 22
+          to_port         = 22
+          icmp_code       = -1
+          icmp_type       = -1
+        }
+      ]
+      tags = {
         region = "ap-south-1"
       }
       route_table_tags = {

@@ -114,6 +114,7 @@ module "private_route_table" {
   count  = length(var.private_subnet)
   source = "../route-table"
   vpc_id = var.create_vpc ? aws_vpc.vpc[0].id : var.vpc_id
+  subnet_id = module.private_subnet[count.index].id
   name   = lookup(var.private_subnet[count.index], "name", local.default_private_subnet_config.name) != null ? format("%s-%s-%s-rt", var.name, lookup(var.private_subnet[count.index], "name", local.default_private_subnet_config.name), reverse(split("", lookup(var.private_subnet[count.index], "availability_zone", local.default_private_subnet_config.availability_zone)))[0]) : format("%s-%s-%s-rt", var.name, var.private_subnet_name, reverse(split("", lookup(var.private_subnet[count.index], "availability_zone", local.default_private_subnet_config.availability_zone)))[0])
   tags   = lookup(var.private_subnet[count.index], "route_table_tags", local.default_private_subnet_config.route_table_tags) != null ? lookup(var.private_subnet[count.index], "route_table_tags", local.default_private_subnet_config.route_table_tags) : (lookup(var.private_subnet[count.index], "tags", local.default_private_subnet_config.tags) != null ? lookup(var.private_subnet[count.index], "tags") : (var.private_subnet_tags != null ? var.private_subnet_tags : var.tags))
 }
@@ -155,6 +156,7 @@ module "protected_route_table" {
   count  = length(var.protected_subnet)
   source = "../route-table"
   vpc_id = var.create_vpc ? aws_vpc.vpc[0].id : var.vpc_id
+  subnet_id = module.protected_subnet[count.index].id
   name   = lookup(var.protected_subnet[count.index], "name", local.default_protected_subnet_config.name) != null ? format("%s-%s-%s-rt", var.name, lookup(var.protected_subnet[count.index], "name", local.default_protected_subnet_config.name), reverse(split("", lookup(var.protected_subnet[count.index], "availability_zone", local.default_protected_subnet_config.availability_zone)))[0]) : format("%s-%s-%s-rt", var.name, var.protected_subnet_name, reverse(split("", lookup(var.protected_subnet[count.index], "availability_zone", local.default_protected_subnet_config.availability_zone)))[0])
   tags   = lookup(var.protected_subnet[count.index], "route_table_tags", local.default_protected_subnet_config.route_table_tags) != null ? lookup(var.protected_subnet[count.index], "route_table_tags", local.default_protected_subnet_config.route_table_tags) : (lookup(var.protected_subnet[count.index], "tags", local.default_protected_subnet_config.tags) != null ? lookup(var.protected_subnet[count.index], "tags") : (var.protected_subnet_tags != null ? var.protected_subnet_tags : var.tags))
 }
@@ -165,10 +167,106 @@ module "protected_routes_nat" {
   count                    = (length(module.nat) > 0 || length(module.nat) > 0) && (length(var.protected_subnet) > 0 && length(module.protected_route_table) > 0) ? length(module.protected_route_table) : 0
   source                   = "../route"
   create_nat_gateway_route = lookup(var.protected_subnet[count.index], "create_nat_gateway_route", local.default_protected_subnet_config.create_nat_gateway_route)
-  route_table_id           = module.private_route_table[count.index].id
+  route_table_id           = module.protected_route_table[count.index].id
   destination_cidr_block   = length(var.nat_ids) > 0 ? element(var.nat_ids, count.index) : lookup(var.protected_subnet[count.index], "nat_destination_cidr_block", local.default_protected_subnet_config.nat_destination_cidr_block)
   nat_gateway_id           = lookup(element(module.nat, count.index), "id")
   depends_on = [
     module.protected_route_table
   ]
+}
+
+data "external" "nacl_subnet_list" {
+  program = ["python3", "/Users/nishanps/miscelaneous/terraform/modules/vpc/nacl.py"]
+  query = {
+    public_subnet_id                      = length(var.public_subnet) > 0 ? jsonencode(module.public_subnet[*].id) : jsonencode([])
+    private_subnet_id                     = length(var.private_subnet) > 0 ? jsonencode(module.private_subnet[*].id) : jsonencode([])
+    protected_subnet_id                   = length(var.protected_subnet) > 0 ? jsonencode(module.protected_subnet[*].id) : jsonencode([])
+    default_public_subnet_nacl_present    = var.default_public_subnet_nacl != null  ? true : false
+    default_private_subnet_nacl_present   = var.default_private_subnet_nacl != null ? true : false
+    default_protected_subnet_nacl_present = var.default_protected_subnet_nacl != null ? true : false
+    public_subnet_config                  = length(var.public_subnet) > 0 ? jsonencode(var.public_subnet) : jsonencode([])
+    private_subnet_config                 = length(var.private_subnet) > 0 ? jsonencode(var.private_subnet) : jsonencode([])
+    protected_subnet_config               = length(var.protected_subnet) > 0 ? jsonencode(var.protected_subnet) : jsonencode([])
+  }
+}
+
+module "default_nacl" {
+  count         = length(var.public_subnet) > 0 && length(var.private_subnet) > 0 && length(var.protected_subnet) > 0 ? 1 : 0
+  source        = "../nacl"
+  name          = format("%s-%s", var.name, lookup(var.default_nacl, "name", local.default_nacl_default_config.name))
+  vpc_id        = var.create_vpc ? aws_vpc.vpc[0].id : var.vpc_id
+  subnet_ids    = jsondecode(replace(data.external.nacl_subnet_list.result.default_nacl, "'", "\""))
+  ingress_rules = lookup(var.default_nacl, "nacl_ingress", local.default_nacl_default_config.nacl_ingress)
+  egress_rules  = lookup(var.default_nacl, "nacl_egress", local.default_nacl_default_config.nacl_egress)
+  tags          = lookup(var.default_nacl, "tags", local.default_nacl_default_config.tags) != null ? lookup(var.default_nacl, "tags") : var.tags
+}
+
+
+module "default_public_subnet_nacl" {
+  count         = var.default_public_subnet_nacl != null ? 1 : 0
+  source        = "../nacl"
+  name          = format("%s-%s", var.name, lookup(var.default_public_subnet_nacl, "name", local.default_public_subnet_nacl_default_config.name))
+  vpc_id        = var.create_vpc ? aws_vpc.vpc[0].id : var.vpc_id
+  subnet_ids    = jsondecode(replace(data.external.nacl_subnet_list.result.default_public_subnet_nacl, "'", "\""))
+  ingress_rules = lookup(var.default_public_subnet_nacl, "nacl_ingress", local.default_public_subnet_nacl_default_config.nacl_ingress)
+  egress_rules  = lookup(var.default_public_subnet_nacl, "nacl_egress", local.default_public_subnet_nacl_default_config.nacl_egress)
+  tags          = lookup(var.default_public_subnet_nacl, "tags", local.default_public_subnet_nacl_default_config.tags) != null ? lookup(var.default_public_subnet_nacl, "tags") : var.tags
+}
+
+module "default_private_subnet_nacl" {
+  count         = var.default_private_subnet_nacl != null ? 1 : 0
+  source        = "../nacl"
+  name          = format("%s-%s", var.name, lookup(var.default_private_subnet_nacl, "name", local.default_private_subnet_nacl_default_config.name))
+  vpc_id        = var.create_vpc ? aws_vpc.vpc[0].id : var.vpc_id
+  subnet_ids    = jsondecode(replace(data.external.nacl_subnet_list.result.default_private_subnet_nacl, "'", "\""))
+  ingress_rules = lookup(var.default_private_subnet_nacl, "nacl_ingress", local.default_private_subnet_nacl_default_config.nacl_ingress)
+  egress_rules  = lookup(var.default_private_subnet_nacl, "nacl_egress", local.default_private_subnet_nacl_default_config.nacl_egress)
+  tags          = lookup(var.default_private_subnet_nacl, "tags", local.default_private_subnet_nacl_default_config.tags) != null ? lookup(var.default_private_subnet_nacl, "tags") : var.tags
+}
+
+module "default_protected_subnet_nacl" {
+  count         = var.default_protected_subnet_nacl != null ? 1 : 0
+  source        = "../nacl"
+  name          = format("%s-%s", var.name, lookup(var.default_protected_subnet_nacl, "name", local.default_protected_subnet_nacl_default_config.name))
+  vpc_id        = var.create_vpc ? aws_vpc.vpc[0].id : var.vpc_id
+  subnet_ids    = jsondecode(replace(data.external.nacl_subnet_list.result.default_protected_subnet_nacl, "'", "\""))
+  ingress_rules = lookup(var.default_protected_subnet_nacl, "nacl_ingress", local.default_protected_subnet_nacl_default_config.nacl_ingress)
+  egress_rules  = lookup(var.default_protected_subnet_nacl, "nacl_egress", local.default_protected_subnet_nacl_default_config.nacl_egress)
+  tags          = lookup(var.default_protected_subnet_nacl, "tags", local.default_protected_subnet_nacl_default_config.tags) != null ? lookup(var.default_protected_subnet_nacl, "tags") : var.tags
+}
+
+module "public_subnet_nacl" {
+  count         = length(var.public_subnet)
+  source        = "../nacl"
+  create_nacl   = lookup(var.public_subnet[count.index], "nacl_ingress", local.default_public_subnet_config.nacl_ingress) == null && lookup(var.public_subnet[count.index], "nacl_egress", local.default_public_subnet_config.nacl_egress) == null ? false : true
+  name          = lookup(var.public_subnet[count.index], "name", local.default_public_subnet_config.name) != null ? format("%s-%s-%s-nacl", var.name, lookup(var.public_subnet[count.index], "name", local.default_public_subnet_config.name), reverse(split("", lookup(var.public_subnet[count.index], "availability_zone", local.default_public_subnet_config.availability_zone)))[0]) : format("%s-%s-%s-nacl", var.name, var.public_subnet_name, reverse(split("", lookup(var.public_subnet[count.index], "availability_zone", local.default_public_subnet_config.availability_zone)))[0])
+  vpc_id        = var.create_vpc ? aws_vpc.vpc[0].id : var.vpc_id
+  subnet_ids    = [module.public_subnet[count.index].id]
+  ingress_rules = lookup(var.public_subnet[count.index], "nacl_ingress", local.default_public_subnet_config.nacl_ingress)
+  egress_rules  = lookup(var.public_subnet[count.index], "nacl_egress", local.default_public_subnet_config.nacl_egress)
+  tags          = lookup(var.public_subnet[count.index], "nacl_tags", local.default_public_subnet_config.nacl_tags) != null ? lookup(var.public_subnet[count.index], "nacl_tags", local.default_public_subnet_config.nacl_tags) : (lookup(var.public_subnet[count.index], "tags", local.default_public_subnet_config.tags) != null ? lookup(var.public_subnet[count.index], "tags") : (var.public_subnet_tags != null ? var.public_subnet_tags : var.tags))
+}
+
+module "private_subnet_nacl" {
+  count         = length(var.private_subnet)
+  source        = "../nacl"
+  create_nacl   = lookup(var.private_subnet[count.index], "nacl_ingress", local.default_private_subnet_config.nacl_ingress) == null && lookup(var.private_subnet[count.index], "nacl_egress", local.default_private_subnet_config.nacl_egress) == null ? false : true
+  name          = lookup(var.private_subnet[count.index], "name", local.default_private_subnet_config.name) != null ? format("%s-%s-%s-nacl", var.name, lookup(var.private_subnet[count.index], "name", local.default_private_subnet_config.name), reverse(split("", lookup(var.private_subnet[count.index], "availability_zone", local.default_private_subnet_config.availability_zone)))[0]) : format("%s-%s-%s-nacl", var.name, var.private_subnet_name, reverse(split("", lookup(var.private_subnet[count.index], "availability_zone", local.default_private_subnet_config.availability_zone)))[0])
+  vpc_id        = var.create_vpc ? aws_vpc.vpc[0].id : var.vpc_id
+  subnet_ids    = [module.private_subnet[count.index].id]
+  ingress_rules = lookup(var.private_subnet[count.index], "nacl_ingress", local.default_private_subnet_config.nacl_ingress)
+  egress_rules  = lookup(var.private_subnet[count.index], "nacl_egress", local.default_private_subnet_config.nacl_egress)
+  tags          = lookup(var.private_subnet[count.index], "nacl_tags", local.default_private_subnet_config.nacl_tags) != null ? lookup(var.private_subnet[count.index], "nacl_tags", local.default_private_subnet_config.nacl_tags) : (lookup(var.private_subnet[count.index], "tags", local.default_private_subnet_config.tags) != null ? lookup(var.private_subnet[count.index], "tags") : (var.private_subnet_tags != null ? var.private_subnet_tags : var.tags))
+}
+
+module "protected_subnet_nacl" {
+  count         = length(var.protected_subnet)
+  source        = "../nacl"
+  create_nacl   = lookup(var.protected_subnet[count.index], "nacl_ingress", local.default_protected_subnet_config.nacl_ingress) == null && lookup(var.protected_subnet[count.index], "nacl_egress", local.default_protected_subnet_config.nacl_egress) == null ? false : true
+  name          = lookup(var.protected_subnet[count.index], "name", local.default_protected_subnet_config.name) != null ? format("%s-%s-%s-nacl", var.name, lookup(var.protected_subnet[count.index], "name", local.default_protected_subnet_config.name), reverse(split("", lookup(var.protected_subnet[count.index], "availability_zone", local.default_protected_subnet_config.availability_zone)))[0]) : format("%s-%s-%s-nacl", var.name, var.protected_subnet_name, reverse(split("", lookup(var.protected_subnet[count.index], "availability_zone", local.default_protected_subnet_config.availability_zone)))[0])
+  vpc_id        = var.create_vpc ? aws_vpc.vpc[0].id : var.vpc_id
+  subnet_ids    = [module.protected_subnet[count.index].id]
+  ingress_rules = lookup(var.protected_subnet[count.index], "nacl_ingress", local.default_protected_subnet_config.nacl_ingress)
+  egress_rules  = lookup(var.protected_subnet[count.index], "nacl_egress", local.default_protected_subnet_config.nacl_egress)
+  tags          = lookup(var.protected_subnet[count.index], "nacl_tags", local.default_protected_subnet_config.nacl_tags) != null ? lookup(var.protected_subnet[count.index], "nacl_tags", local.default_protected_subnet_config.nacl_tags) : (lookup(var.protected_subnet[count.index], "tags", local.default_protected_subnet_config.tags) != null ? lookup(var.protected_subnet[count.index], "tags") : (var.protected_subnet_tags != null ? var.protected_subnet_tags : var.tags))
 }

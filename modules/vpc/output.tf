@@ -179,3 +179,103 @@ output "protected_route_table_arns" {
 output "protected_route_table_tags" {
   value = length(var.protected_subnet) > 0 ? module.protected_route_table[*].tags : null
 }
+
+
+########### DEFAULT NACL ##########
+
+output "default_nacl_id" {
+  value = length(module.default_nacl) > 0 ? module.default_nacl[*].id : null
+}
+
+output "default_nacl_arn" {
+  value = length(module.default_nacl) > 0 ? module.default_nacl[*].arn : null
+}
+
+output "default_nacl_tags" {
+  value = length(module.default_nacl) > 0 ? module.default_nacl[*].tags : null
+}
+
+#### DEFAULT PUBLIC SUBNET NACL ####
+
+output "default_public_subnet_nacl_id" {
+  value = length(module.default_public_subnet_nacl) > 0 ? module.default_public_subnet_nacl[*].id : null
+}
+
+output "default_public_subnet_nacl_arn" {
+  value = length(module.default_public_subnet_nacl) > 0 ? module.default_public_subnet_nacl[*].arn : null
+}
+
+output "default_public_subnet_nacl_tags" {
+  value = length(module.default_public_subnet_nacl) > 0 ? module.default_public_subnet_nacl[*].tags : null
+}
+
+#### DEFAULT PRIVATE SUBNET NACL ###
+
+output "default_private_subnet_nacl_id" {
+  value = length(module.default_private_subnet_nacl) > 0 ? module.default_private_subnet_nacl[*].id : null
+}
+
+output "default_private_subnet_nacl_arn" {
+  value = length(module.default_private_subnet_nacl) > 0 ? module.default_private_subnet_nacl[*].arn : null
+}
+
+output "default_private_subnet_nacl_tags" {
+  value = length(module.default_private_subnet_nacl) > 0 ? module.default_private_subnet_nacl[*].tags : null
+}
+
+### DEFAULT PROTECTED SUBNET NACL ##
+
+output "default_protected_subnet_nacl_id" {
+  value = length(module.default_protected_subnet_nacl) > 0 ? module.default_protected_subnet_nacl[*].id : null
+}
+
+output "default_protected_subnet_nacl_arn" {
+  value = length(module.default_protected_subnet_nacl) > 0 ? module.default_protected_subnet_nacl[*].arn : null
+}
+
+output "default_protected_subnet_nacl_tags" {
+  value = length(module.default_protected_subnet_nacl) > 0 ? module.default_protected_subnet_nacl[*].tags : null
+}
+
+######## PUBLIC SUBNET NACL ########
+
+output "public_subnet_nacl_id" {
+  value = length(module.public_subnet_nacl) > 0 ? module.public_subnet_nacl[*].id : null
+}
+
+output "public_subnet_nacl_arn" {
+  value = length(module.public_subnet_nacl) > 0 ? module.public_subnet_nacl[*].arn : null
+}
+
+output "public_subnet_nacl_tags" {
+  value = length(module.public_subnet_nacl) > 0 ? module.public_subnet_nacl[*].tags : null
+}
+
+######## PRIVATE SUBNET NACL #######
+
+output "private_subnet_nacl_id" {
+  value = length(module.private_subnet_nacl) > 0 ? module.private_subnet_nacl[*].id : null
+}
+
+output "private_subnet_nacl_arn" {
+  value = length(module.private_subnet_nacl) > 0 ? module.private_subnet_nacl[*].arn : null
+}
+
+output "private_subnet_nacl_tags" {
+  value = length(module.private_subnet_nacl) > 0 ? module.private_subnet_nacl[*].tags : null
+}
+
+####### PROTECTED SUBNET NACL ######
+
+output "protected_subnet_nacl_id" {
+  value = length(module.protected_subnet_nacl) > 0 ? module.protected_subnet_nacl[*].id : null
+}
+
+output "protected_subnet_nacl_arn" {
+  value = length(module.protected_subnet_nacl) > 0 ? module.protected_subnet_nacl[*].arn : null
+}
+
+output "protected_subnet_nacl_tags" {
+  value = length(module.protected_subnet_nacl) > 0 ? module.protected_subnet_nacl[*].tags : null
+}
+
