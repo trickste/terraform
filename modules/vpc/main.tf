@@ -175,6 +175,8 @@ module "protected_routes_nat" {
   ]
 }
 
+## DATA GROUP SUBNET FOR NACL ##
+
 data "external" "nacl_subnet_list" {
   program = ["python3", "/Users/nishanps/miscelaneous/terraform/modules/vpc/nacl.py"]
   query = {
@@ -190,6 +192,8 @@ data "external" "nacl_subnet_list" {
   }
 }
 
+######### DEFAULT NACL #########
+
 module "default_nacl" {
   count         = length(var.public_subnet) > 0 && length(var.private_subnet) > 0 && length(var.protected_subnet) > 0 ? 1 : 0
   source        = "../nacl"
@@ -201,6 +205,7 @@ module "default_nacl" {
   tags          = lookup(var.default_nacl, "tags", local.default_nacl_default_config.tags) != null ? lookup(var.default_nacl, "tags") : var.tags
 }
 
+## DEFAULT PUBLIC SUBNET NACL ##
 
 module "default_public_subnet_nacl" {
   count         = var.default_public_subnet_nacl != null ? 1 : 0
@@ -213,6 +218,8 @@ module "default_public_subnet_nacl" {
   tags          = lookup(var.default_public_subnet_nacl, "tags", local.default_public_subnet_nacl_default_config.tags) != null ? lookup(var.default_public_subnet_nacl, "tags") : var.tags
 }
 
+## DEFAULT PRIVATE SUBNET NACL #
+
 module "default_private_subnet_nacl" {
   count         = var.default_private_subnet_nacl != null ? 1 : 0
   source        = "../nacl"
@@ -224,6 +231,8 @@ module "default_private_subnet_nacl" {
   tags          = lookup(var.default_private_subnet_nacl, "tags", local.default_private_subnet_nacl_default_config.tags) != null ? lookup(var.default_private_subnet_nacl, "tags") : var.tags
 }
 
+# DEFAULT PROTECTED SUBNET NACL #
+
 module "default_protected_subnet_nacl" {
   count         = var.default_protected_subnet_nacl != null ? 1 : 0
   source        = "../nacl"
@@ -234,6 +243,8 @@ module "default_protected_subnet_nacl" {
   egress_rules  = lookup(var.default_protected_subnet_nacl, "nacl_egress", local.default_protected_subnet_nacl_default_config.nacl_egress)
   tags          = lookup(var.default_protected_subnet_nacl, "tags", local.default_protected_subnet_nacl_default_config.tags) != null ? lookup(var.default_protected_subnet_nacl, "tags") : var.tags
 }
+
+####### PUBLIC SUBNET NACL ######
 
 module "public_subnet_nacl" {
   count         = length(var.public_subnet)
@@ -247,6 +258,8 @@ module "public_subnet_nacl" {
   tags          = lookup(var.public_subnet[count.index], "nacl_tags", local.default_public_subnet_config.nacl_tags) != null ? lookup(var.public_subnet[count.index], "nacl_tags", local.default_public_subnet_config.nacl_tags) : (lookup(var.public_subnet[count.index], "tags", local.default_public_subnet_config.tags) != null ? lookup(var.public_subnet[count.index], "tags") : (var.public_subnet_tags != null ? var.public_subnet_tags : var.tags))
 }
 
+###### PRIVATE SUBNET NACL ######
+
 module "private_subnet_nacl" {
   count         = length(var.private_subnet)
   source        = "../nacl"
@@ -258,6 +271,8 @@ module "private_subnet_nacl" {
   egress_rules  = lookup(var.private_subnet[count.index], "nacl_egress", local.default_private_subnet_config.nacl_egress)
   tags          = lookup(var.private_subnet[count.index], "nacl_tags", local.default_private_subnet_config.nacl_tags) != null ? lookup(var.private_subnet[count.index], "nacl_tags", local.default_private_subnet_config.nacl_tags) : (lookup(var.private_subnet[count.index], "tags", local.default_private_subnet_config.tags) != null ? lookup(var.private_subnet[count.index], "tags") : (var.private_subnet_tags != null ? var.private_subnet_tags : var.tags))
 }
+
+##### PROTECTED SUBNET NACL #####
 
 module "protected_subnet_nacl" {
   count         = length(var.protected_subnet)
